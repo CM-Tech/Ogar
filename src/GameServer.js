@@ -106,6 +106,8 @@ function GameServer() {
         {'r': 80, 'g':145, 'b':  0},
         {'r': 80, 'g':170, 'b':240},
         {'r': 55, 'g': 92, 'b':255},
+        {'r': 255, 'g': 255, 'b': 255},
+        {'r': 0, 'g': 0, 'b': 0},
     ];
 }
 
@@ -641,6 +643,45 @@ GameServer.prototype.ejectMass = function(client) {
 
         this.addNode(ejected);
         this.setAsMovingNode(ejected);
+    }
+};
+
+GameServer.prototype.ejectSpike = function(client) {
+    for (var i = 0; i < client.cells.length; i++) {
+        var cell = client.cells[i];
+
+        if (!cell) {
+            continue;
+        }
+
+        if (cell.mass < this.config.playerMinMassEject) {
+            continue;
+        }
+
+        var deltaY = client.mouse.y - cell.position.y;
+        var deltaX = client.mouse.x - cell.position.x;
+        var angle = Math.atan2(deltaX,deltaY);
+
+        // Get starting position
+        var size = cell.getSize() + 5;
+        var startPos = {
+            x: cell.position.x + ( (size + this.config.ejectMass) * Math.sin(angle) ),
+            y: cell.position.y + ( (size + this.config.ejectMass) * Math.cos(angle) )
+        };
+
+        // Remove mass from parent cell
+        cell.mass -= this.config.ejectMassLoss;
+        // Randomize angle
+        angle += (Math.random() * .4) - .2;
+
+        // Create cell
+        var ejectedSpike = new Entity.EjectedSpike(this.getNextNodeId(), null, startPos, this.config.ejectMass);
+        ejectedSpike.setAngle(angle);
+        ejectedSpike.setMoveEngineData(this.config.ejectSpeed, 20);
+        ejectedSpike.setColor(cell.getColor());
+
+        this.addNode(ejectedSpike);
+        this.setAsMovingNode(ejectedSpike);
     }
 };
 

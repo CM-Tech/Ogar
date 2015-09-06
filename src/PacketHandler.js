@@ -34,7 +34,6 @@ PacketHandler.prototype.handleMessage = function(message) {
     var buffer = stobuf(message);
     var view = new DataView(buffer);
     var packetId = view.getUint8(0, true);
-
     switch (packetId) {
         case 0:
             // Check for invalid packets
@@ -78,7 +77,7 @@ PacketHandler.prototype.handleMessage = function(message) {
         case 18:
             // Q Key Pressed
             this.pressQ = true;
-            break;
+             break;
         case 19:
             // Q Key Released
             break;

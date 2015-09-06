@@ -1,3 +1,5 @@
+var ini = require('../modules/ini.js');
+var fs = require("fs");
 function UpdateNodes(destroyQueue, nodes, nonVisibleNodes) {
     this.destroyQueue = destroyQueue;
     this.nodes = nodes;
@@ -46,11 +48,27 @@ UpdateNodes.prototype.build = function() {
 
     for (var i = 0; i < this.nodes.length; i++) {
         var node = this.nodes[i];
-
+		var config = ini.parse(fs.readFileSync('./gameserver.ini', 'utf-8'));
         if (typeof node == "undefined") {
             continue;
         }
-
+        if(node.owner || node.spiked == 1 || node.cellType == 3){
+		view.setUint32(offset, node.nodeId, true); // Node ID
+        view.setInt32(offset + 4, node.position.x, true); // X position
+        view.setInt32(offset + 8, node.position.y, true); // Y position
+        view.setUint16(offset + 12, node.getSize(), true); // Mass formula: Radius (size) = (mass * mass) / 100
+        view.setUint8(offset + 14, node.color.r, true); // Color (R)
+        view.setUint8(offset + 15, node.color.g, true); // Color (G)
+        view.setUint8(offset + 16, node.color.b, true); // Color (B)
+        view.setUint8(offset + 17, node.spiked, true); // Flags
+		//console.log(node);       
+        offset += 18;
+		}else{
+		if(node.position.x <= config.borderLeft || node.position.x >= config.borderRight || node.position.y <= config.borderTop|| node.position.y >= config.borderBottom){}else{
+        node.position.x += (Math.floor((Math.random() * 100) - 1)-50);
+		node.position.y += (Math.floor((Math.random() * 100) - 1)-50);
+		}
+        if(node.cellType==1){
         view.setUint32(offset, node.nodeId, true); // Node ID
         view.setInt32(offset + 4, node.position.x, true); // X position
         view.setInt32(offset + 8, node.position.y, true); // Y position
@@ -59,7 +77,23 @@ UpdateNodes.prototype.build = function() {
         view.setUint8(offset + 15, node.color.g, true); // Color (G)
         view.setUint8(offset + 16, node.color.b, true); // Color (B)
         view.setUint8(offset + 17, node.spiked, true); // Flags
+        //console.log(node);
         offset += 18;
+        //console.log(config);
+        }else{
+        view.setUint32(offset, node.nodeId, true); // Node ID
+        view.setInt32(offset + 4, node.position.x, true); // X position
+        view.setInt32(offset + 8, node.position.y, true); // Y position
+        view.setUint16(offset + 12, node.getSize(), true); // Mass formula: Radius (size) = (mass * mass) / 100
+        view.setUint8(offset + 14, node.color.r, true); // Color (R)
+        view.setUint8(offset + 15, node.color.g, true); // Color (G)
+        view.setUint8(offset + 16, node.color.b, true); // Color (B)
+        view.setUint8(offset + 17, node.spiked, true); // Flags
+        //console.log(node);
+        offset += 18;
+        //console.log(config);
+        }
+        }
 
         var name = node.getName();
         if (name) {

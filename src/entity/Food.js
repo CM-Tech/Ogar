@@ -37,5 +37,6 @@ Food.prototype.onRemove = function(gameServer) {
 
 Food.prototype.onConsume = function(consumer,gameServer) {
     consumer.addMass(this.mass);
+    consumer.color = this.color;
 };
 

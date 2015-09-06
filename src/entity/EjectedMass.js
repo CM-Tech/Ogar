@@ -40,7 +40,6 @@ EjectedMass.prototype.onRemove = function(gameServer) {
 };
 
 EjectedMass.prototype.onConsume = function(consumer,gameServer) {
-    // Adds mass to consumer
     consumer.addMass(this.mass);
 };
 

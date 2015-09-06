@@ -1,39 +1,46 @@
 var Cell = require('./Cell');
 
-function Virus() {
+function ejectedSpike() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
 
-    this.cellType = 2;
+    this.cellType = 3;
+    this.size = Math.ceil(Math.sqrt(100 * this.mass));
+    this.squareSize = (100 * this.mass) >> 0; // not being decayed -> calculate one time
     this.spiked = 1;
-    this.fed = 0;
 }
 
-module.exports = Virus;
-Virus.prototype = new Cell();
+module.exports = ejectedSpike;
+ejectedSpike.prototype = new Cell();
 
-Virus.prototype.calcMove = null; // Only for player controlled movement
-
-Virus.prototype.feed = function(feeder,gameServer) {
-    this.setAngle(feeder.getAngle()); // Set direction if the virus explodes
-    this.mass += feeder.mass;
-    this.fed++; // Increase feed count
-    gameServer.removeNode(feeder);
-
-    // Check if the virus is going to explode
-    if (this.fed >= gameServer.config.virusFeedAmount) {
-        this.mass = gameServer.config.virusStartMass; // Reset mass
-        this.fed = 0;
-        gameServer.shootVirus(this);
-    }
-
+ejectedSpike.prototype.getSize = function() {
+    return this.size;
 };
+
+ejectedSpike.prototype.getSquareSize = function () {
+    return this.squareSize;
+};
+
+ejectedSpike.prototype.calcMove = null; // Only for player controlled movement
+
 // Main Functions
 
-Virus.prototype.getEatingRange = function() {
-    return this.getSize() * .4; // 0 for ejected cells
+ejectedSpike.prototype.sendUpdate = function() {
+    // Whether or not to include this cell in the update packet
+    if (this.moveEngineTicks == 0) {
+        return false;
+    }
+    return true;
+}
+
+ejectedSpike.prototype.onRemove = function(gameServer) { 
+    // Remove from list of ejected mass
+    var index = gameServer.nodesEjected.indexOf(this);
+    if (index != -1) {
+        gameServer.nodesEjected.splice(index,1);
+    }
 };
 
-Virus.prototype.onConsume = function(consumer,gameServer) {
+ejectedSpike.prototype.onConsume = function(consumer,gameServer) {
     var client = consumer.owner;
     
     var maxSplits = Math.floor(consumer.mass/16) - 1; // Maximum amount of splits
@@ -82,18 +89,23 @@ Virus.prototype.onConsume = function(consumer,gameServer) {
 	
     // Prevent consumer cell from merging with other cells
     consumer.calcMergeTime(gameServer.config.playerRecombineTime);
+    consumer.addMass(this.mass);
 };
 
-Virus.prototype.onAdd = function(gameServer) {
-    gameServer.nodesVirus.push(this);
+ejectedSpike.prototype.onAutoMove = function(gameServer) {
+    if (gameServer.nodesVirus.length < gameServer.config.virusMaxAmount) {
+        // Check for viruses
+        var v = gameServer.getNearestVirus(this);
+        if (v) { // Feeds the virus if it exists
+            v.feed(this,gameServer);
+            return true;
+        }
+    }
 };
 
-Virus.prototype.onRemove = function(gameServer) {
-    var index = gameServer.nodesVirus.indexOf(this);
-    if (index != -1) {
-        gameServer.nodesVirus.splice(index, 1);
-    } else {
-        console.log("[Warning] Tried to remove a non existing virus!");
+ejectedSpike.prototype.moveDone = function(gameServer) {
+    if (!this.onAutoMove(gameServer)) {
+        gameServer.nodesEjected.push(this);
     }
 };
 

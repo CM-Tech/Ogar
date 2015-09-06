@@ -37,14 +37,14 @@ Mode.prototype.onPlayerSpawn = function(gameServer,player) {
 
 Mode.prototype.pressQ = function(gameServer,player) {
     // Called when the Q key is pressed
-    if (player.spectate) {
-        gameServer.switchSpectator(player);
-    }
+    //gameServer.ejectSpike(player);
+    //console.log(gameServer);
 };
 
 Mode.prototype.pressW = function(gameServer,player) {
     // Called when the W key is pressed
     gameServer.ejectMass(player);
+    //console.log(gameServer);
 };
 
 Mode.prototype.pressSpace = function(gameServer,player) {

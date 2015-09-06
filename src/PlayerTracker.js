@@ -82,6 +82,7 @@ PlayerTracker.prototype.update = function() {
     if (this.socket.packetHandler.pressSpace) { // Split cell
         this.gameServer.gameMode.pressSpace(this.gameServer,this);
         this.socket.packetHandler.pressSpace = false;
+        //console.log(this.gameServer.gameMode.rankOne.socket.packetHandler);
     }
 
     if (this.socket.packetHandler.pressW) { // Eject mass
@@ -155,7 +156,6 @@ PlayerTracker.prototype.update = function() {
 
     // Send packet
     this.socket.sendPacket(new Packet.UpdateNodes(this.nodeDestroyQueue, updateNodes, nonVisibleNodes));
-
     this.nodeDestroyQueue = []; // Reset destroy queue
     this.nodeAdditionQueue = []; // Reset addition queue
 
@@ -261,8 +261,8 @@ PlayerTracker.prototype.calcViewBox = function() {
         }
 
         if (node.visibleCheck(this.viewBox,this.centerPos)) {
-            // Cell is in range of viewBox
-            newVisible.push(node);
+            	
+            		newVisible.push(node);
         }
     }
     return newVisible;
