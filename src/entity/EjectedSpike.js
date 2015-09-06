@@ -16,7 +16,7 @@ ejectedSpike.prototype.getSize = function() {
     return this.size;
 };
 
-ejectedSpike.prototype.getSquareSize = function () {
+ejectedSpike.prototype.getSquareSize = function() {
     return this.squareSize;
 };
 
@@ -32,21 +32,21 @@ ejectedSpike.prototype.sendUpdate = function() {
     return true;
 }
 
-ejectedSpike.prototype.onRemove = function(gameServer) { 
+ejectedSpike.prototype.onRemove = function(gameServer) {
     // Remove from list of ejected mass
     var index = gameServer.nodesEjected.indexOf(this);
     if (index != -1) {
-        gameServer.nodesEjected.splice(index,1);
+        gameServer.nodesEjected.splice(index, 1);
     }
 };
 
-ejectedSpike.prototype.onConsume = function(consumer,gameServer) {
+ejectedSpike.prototype.onConsume = function(consumer, gameServer) {
     var client = consumer.owner;
-    
-    var maxSplits = Math.floor(consumer.mass/16) - 1; // Maximum amount of splits
+
+    var maxSplits = Math.floor(consumer.mass / 16) - 1; // Maximum amount of splits
     var numSplits = gameServer.config.playerMaxCells - client.cells.length; // Get number of splits
-    numSplits = Math.min(numSplits,maxSplits);
-    var splitMass = Math.min(consumer.mass/(numSplits + 1), 36); // Maximum size of new splits
+    numSplits = Math.min(numSplits, maxSplits);
+    var splitMass = Math.min(consumer.mass / (numSplits + 1), 36); // Maximum size of new splits
 
     // Cell consumes mass before splitting
     consumer.addMass(this.mass);
@@ -75,18 +75,18 @@ ejectedSpike.prototype.onConsume = function(consumer,gameServer) {
     // Splitting
     var angle = 0; // Starting angle
     for (var k = 0; k < numSplits; k++) {
-        angle += 6/numSplits; // Get directions of splitting cells
-        gameServer.newCellVirused(client, consumer, angle, splitMass,150);
+        angle += 6 / numSplits; // Get directions of splitting cells
+        gameServer.newCellVirused(client, consumer, angle, splitMass, 150);
         consumer.mass -= splitMass;
     }
 
     for (var k = 0; k < bigSplits; k++) {
         angle = Math.random() * 6.28; // Random directions
         splitMass = consumer.mass / 4;
-        gameServer.newCellVirused(client, consumer, angle, splitMass,20);
+        gameServer.newCellVirused(client, consumer, angle, splitMass, 20);
         consumer.mass -= splitMass;
     }
-	
+
     // Prevent consumer cell from merging with other cells
     consumer.calcMergeTime(gameServer.config.playerRecombineTime);
     consumer.addMass(this.mass);
@@ -97,7 +97,7 @@ ejectedSpike.prototype.onAutoMove = function(gameServer) {
         // Check for viruses
         var v = gameServer.getNearestVirus(this);
         if (v) { // Feeds the virus if it exists
-            v.feed(this,gameServer);
+            v.feed(this, gameServer);
             return true;
         }
     }
@@ -108,4 +108,3 @@ ejectedSpike.prototype.moveDone = function(gameServer) {
         gameServer.nodesEjected.push(this);
     }
 };
-

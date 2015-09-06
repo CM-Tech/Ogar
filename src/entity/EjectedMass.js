@@ -15,7 +15,7 @@ EjectedMass.prototype.getSize = function() {
     return this.size;
 };
 
-EjectedMass.prototype.getSquareSize = function () {
+EjectedMass.prototype.getSquareSize = function() {
     return this.squareSize;
 };
 
@@ -31,15 +31,15 @@ EjectedMass.prototype.sendUpdate = function() {
     return true;
 }
 
-EjectedMass.prototype.onRemove = function(gameServer) { 
+EjectedMass.prototype.onRemove = function(gameServer) {
     // Remove from list of ejected mass
     var index = gameServer.nodesEjected.indexOf(this);
     if (index != -1) {
-        gameServer.nodesEjected.splice(index,1);
+        gameServer.nodesEjected.splice(index, 1);
     }
 };
 
-EjectedMass.prototype.onConsume = function(consumer,gameServer) {
+EjectedMass.prototype.onConsume = function(consumer, gameServer) {
     consumer.addMass(this.mass);
 };
 
@@ -48,7 +48,7 @@ EjectedMass.prototype.onAutoMove = function(gameServer) {
         // Check for viruses
         var v = gameServer.getNearestVirus(this);
         if (v) { // Feeds the virus if it exists
-            v.feed(this,gameServer);
+            v.feed(this, gameServer);
             return true;
         }
     }
@@ -59,4 +59,3 @@ EjectedMass.prototype.moveDone = function(gameServer) {
         gameServer.nodesEjected.push(this);
     }
 };
-

@@ -28,7 +28,10 @@ gameServer.commands = Commands.list;
 // Initialize the server console
 if (showConsole) {
     var readline = require('readline');
-    var in_ = readline.createInterface({ input: process.stdin, output: process.stdout });
+    var in_ = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
     setTimeout(prompt, 100);
 }
 
@@ -37,15 +40,15 @@ if (showConsole) {
 
 function prompt() {
     in_.question(">", function(str) {
-    	parseCommands(str);
+        parseCommands(str);
         return prompt(); // Too lazy to learn async
-    });	
+    });
 };
 
 function parseCommands(str) {
     // Log the string
     gameServer.log.onCommand(str);
-    
+
     // Don't process ENTER
     if (str === '')
         return;
@@ -59,7 +62,7 @@ function parseCommands(str) {
     // Get command function
     var execute = gameServer.commands[first];
     if (typeof execute != 'undefined') {
-        execute(gameServer,split);
+        execute(gameServer, split);
     } else {
         console.log("[Console] Invalid Command!");
     }

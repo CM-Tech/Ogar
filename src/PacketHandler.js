@@ -77,7 +77,7 @@ PacketHandler.prototype.handleMessage = function(message) {
         case 18:
             // Q Key Pressed
             this.pressQ = true;
-             break;
+            break;
         case 19:
             // Q Key Released
             break;
@@ -103,13 +103,12 @@ PacketHandler.prototype.setNickname = function(newNick) {
     var client = this.socket.playerTracker;
     if (client.cells.length < 1) {
         // Set name first
-        client.setName(newNick); 
+        client.setName(newNick);
 
         // If client has no cells... then spawn a player
-        this.gameServer.gameMode.onPlayerSpawn(this.gameServer,client);
+        this.gameServer.gameMode.onPlayerSpawn(this.gameServer, client);
 
         // Turn off spectate mode
         client.spectate = false;
     }
 };
-

@@ -7,9 +7,9 @@ module.exports = {
 var get = function(id) {
     var mode;
     switch (id) {
-        case 1: 
-        	mode = new module.exports.Weird();
-        	break;
+        case 1:
+            mode = new module.exports.Weird();
+            break;
         default: // FFA is default
             mode = new module.exports.FFA();
             break;
@@ -18,4 +18,3 @@ var get = function(id) {
 };
 
 module.exports.get = get;
-

@@ -15,22 +15,22 @@ function Experimental() {
     this.ID = 1;
     this.name = "Completely Random";
     this.specByLeaderboard = true;
-    
+
     // Gamemode Specific Variables
     this.nodesMother = [];
-    this.tickMother = 0; 
+    this.tickMother = 0;
     this.tickMotherS = 0;
-    
+
     this.nodesPower = [];
-    this.tickPower = 0; 
+    this.tickPower = 0;
     this.tickPowerS = 0;
-    
+
     // Config
     this.motherCellMass = 150;
     this.motherUpdateInterval = 5; // How many ticks it takes to update the mother cell (1 tick = 50 ms)
     this.motherSpawnInterval = 100; // How many ticks it takes to spawn another mother cell - Currently 5 seconds
     this.motherMinAmount = 200;
-    
+
     this.powerUpMass = 150;
     this.powerrUpdateInterval = 5; // How many ticks it takes to update the mother cell (1 tick = 50 ms)
     this.powerSpawnInterval = 100; // How many ticks it takes to spawn another mother cell - Currently 5 seconds
@@ -46,7 +46,7 @@ Experimental.prototype = new FFA();
 Experimental.prototype.updateMotherCells = function(gameServer) {
     for (var i in this.nodesMother) {
         var mother = this.nodesMother[i];
-        
+
         // Checks
         mother.update(gameServer);
         mother.checkEat(gameServer);
@@ -54,10 +54,10 @@ Experimental.prototype.updateMotherCells = function(gameServer) {
 }
 
 Experimental.prototype.spawnMotherCell = function(gameServer) {
-	// Checks if there are enough mother cells on the map
+    // Checks if there are enough mother cells on the map
     if (this.nodesMother.length < this.motherMinAmount) {
         // Spawns a mother cell
-        var pos =  gameServer.getRandomPosition();
+        var pos = gameServer.getRandomPosition();
 
         // Check for players
         for (var i = 0; i < gameServer.nodesPlayer.length; i++) {
@@ -94,14 +94,14 @@ Experimental.prototype.spawnMotherCell = function(gameServer) {
 
         // Spawn if no cells are colliding
         var m = new MotherCell(gameServer.getNextNodeId(), null, pos, this.motherCellMass);
-        gameServer.addNode(m); 
+        gameServer.addNode(m);
     }
 };
 Experimental.prototype.spawnPowerUp = function(gameServer) {
-	// Checks if there are enough mother cells on the map
+    // Checks if there are enough mother cells on the map
     if (this.nodesPower.length < this.powerMinAmount) {
         // Spawns a mother cell
-        var pos =  gameServer.getRandomPosition();
+        var pos = gameServer.getRandomPosition();
 
         // Check for players
         for (var i = 0; i < gameServer.nodesPlayer.length; i++) {
@@ -138,7 +138,7 @@ Experimental.prototype.spawnPowerUp = function(gameServer) {
 
         // Spawn if no cells are colliding
         var v = new PowerUp(gameServer.getNextNodeId(), null, pos, this.powerUpMass);
-        gameServer.addNode(v); 
+        gameServer.addNode(v);
     }
 };
 // Override
@@ -146,15 +146,17 @@ Experimental.prototype.spawnPowerUp = function(gameServer) {
 Experimental.prototype.onServerInit = function(gameServer) {
     // Called when the server starts
     gameServer.run = true;
-    Food.prototype.sendUpdate = function() {return true;};
+    Food.prototype.sendUpdate = function() {
+        return true;
+    };
     // Special virus mechanics
-    Virus.prototype.feed = function(feeder,gameServer) {
+    Virus.prototype.feed = function(feeder, gameServer) {
         gameServer.removeNode(feeder);
         // Pushes the virus
         this.setAngle(feeder.getAngle()); // Set direction if the virus explodes
         this.moveEngineTicks = 5; // Amount of times to loop the movement function
         this.moveEngineSpeed = 30;
-        
+
         var index = gameServer.movingNodes.indexOf(this);
         if (index == -1) {
             gameServer.movingNodes.push(this);
@@ -167,30 +169,30 @@ Experimental.prototype.onServerInit = function(gameServer) {
 
 Experimental.prototype.onTick = function(gameServer) {
     // Mother Cell updates
-    
+
     if (this.tickMother >= this.motherUpdateInterval) {
-    	this.updateMotherCells(gameServer);
-    	this.tickMother = 0;
+        this.updateMotherCells(gameServer);
+        this.tickMother = 0;
     } else {
-    	this.tickMother++;
+        this.tickMother++;
     }
-    
+
     // Mother Cell Spawning
     if (this.tickMotherS >= this.motherSpawnInterval) {
-    	this.spawnMotherCell(gameServer);
-    	this.tickMotherS = 0;
+        this.spawnMotherCell(gameServer);
+        this.tickMotherS = 0;
     } else {
-    	this.tickMotherS++;
+        this.tickMotherS++;
     }
-    
+
     if (this.tickPowerS >= this.powerSpawnInterval) {
-    	this.spawnPowerUp(gameServer);
-    	this.tickPowerS = 0;
+        this.spawnPowerUp(gameServer);
+        this.tickPowerS = 0;
     } else {
-    	this.tickPowerS++;
+        this.tickPowerS++;
     }
     // Mother Cell Spawning
-   
+
 };
 
 Experimental.prototype.onChange = function(gameServer) {
@@ -211,16 +213,25 @@ Experimental.prototype.onChange = function(gameServer) {
 
 function MotherCell() { // Temporary - Will be in its own file if Zeach decides to add this to vanilla
     Cell.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.cellType = 2; // Copies virus cell
-    this.color = {r: 205, g: 85, b: 100};
+    this.color = {
+        r: 205,
+        g: 85,
+        b: 100
+    };
     this.spiked = 1;
 }
+
 function PowerUp() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
-    
+
     this.cellType = 2; // Copies food cell
-    this.color = {r: 255, g: 132, b: 31};
+    this.color = {
+        r: 255,
+        g: 132,
+        b: 31
+    };
     this.spiked = 1;
 }
 
@@ -237,14 +248,14 @@ PowerUp.prototype.getEatingRange = function() {
 MotherCell.prototype.update = function(gameServer) {
     // Add mass
     this.mass += .25;
-	
+
     // Spawn food
     var maxFood = 10; // Max food spawned per tick
     var i = 0; // Food spawn counter
-    while ((this.mass > gameServer.gameMode.motherCellMass) && (i < maxFood))  {
+    while ((this.mass > gameServer.gameMode.motherCellMass) && (i < maxFood)) {
         // Only spawn if food cap hasnt been reached
-            this.spawnFood(gameServer);
-        
+        this.spawnFood(gameServer);
+
         // Incrementers
         this.mass--;
         i++;
@@ -254,48 +265,56 @@ MotherCell.prototype.update = function(gameServer) {
 MotherCell.prototype.checkEat = function(gameServer) {
     var safeMass = this.mass * .9;
     var r = this.getSize(); // The box area that the checked cell needs to be in to be considered eaten
-	
+
     // Loop for potential prey
     for (var i in gameServer.nodesPlayer) {
-    	var check = gameServer.nodesPlayer[i];
-    	//console.log(check.owner);
-    	if (check.mass > safeMass) {
+        var check = gameServer.nodesPlayer[i];
+        //console.log(check.owner);
+        if (check.mass > safeMass) {
             // Too big to be consumed
             continue;
-    	}
-    	
-    	// Calculations
-        var len = r - (check.getSize() / 2) >> 0; 
+        }
+
+        // Calculations
+        var len = r - (check.getSize() / 2) >> 0;
         if ((this.abs(this.position.x - check.position.x) < len) && (this.abs(this.position.y - check.position.y) < len)) {
             // A second, more precise check
             var xs = Math.pow(check.position.x - this.position.x, 2);
             var ys = Math.pow(check.position.y - this.position.y, 2);
-            var dist = Math.sqrt( xs + ys );
-            
+            var dist = Math.sqrt(xs + ys);
+
             if (r > dist) {
                 // Eats the cell
                 gameServer.removeNode(check);
-                this.color = {r: 25, g: 185, b: 200};
+                this.color = {
+                    r: 25,
+                    g: 185,
+                    b: 200
+                };
                 this.mass += check.mass;
-                
+
             }
-        }else{
-        
+        } else {
+
         }
     }
     for (var i in gameServer.movingNodes) {
-    	var check = gameServer.movingNodes[i];
-    	
-    	if ((check.getType() == 1) || (check.mass > safeMass)) {
+        var check = gameServer.movingNodes[i];
+
+        if ((check.getType() == 1) || (check.mass > safeMass)) {
             // Too big to be consumed/ No player cells
             continue;
-    	}
-    	
-    	// Calculations
-        var len = r >> 0; 
+        }
+
+        // Calculations
+        var len = r >> 0;
         if ((this.abs(this.position.x - check.position.x) < len) && (this.abs(this.position.y - check.position.y) < len)) {
             // Eat the cell
-             this.color = {r: 25, g: 185, b: 200};
+            this.color = {
+                r: 25,
+                g: 185,
+                b: 200
+            };
             gameServer.removeNode(check);
             this.mass += check.mass;
         }
@@ -304,12 +323,12 @@ MotherCell.prototype.checkEat = function(gameServer) {
 
 MotherCell.prototype.abs = function(n) {
     // Because Math.abs is slow
-    return (n < 0) ? -n: n;
+    return (n < 0) ? -n : n;
 }
 
 PowerUp.prototype.abs = function(n) {
     // Because Math.abs is slow
-    return (n < 0) ? -n: n;
+    return (n < 0) ? -n : n;
 }
 
 MotherCell.prototype.spawnFood = function(gameServer) {
@@ -317,23 +336,23 @@ MotherCell.prototype.spawnFood = function(gameServer) {
     var angle = Math.random() * (Math.PI * 2) // ??? Precision is not our greatest concern here
     var r = this.getSize();
     var pos = {
-        x: this.position.x + ( r * Math.sin(angle) ),
-        y: this.position.y + ( r * Math.cos(angle) )
+        x: this.position.x + (r * Math.sin(angle)),
+        y: this.position.y + (r * Math.cos(angle))
     };
 
     // Spawn food
-    if(this.color.r !==  205){
-    var f = new Food(gameServer.getNextNodeId(), null, pos, gameServer.config.foodMass);
-    f.setColor(gameServer.getRandomColor());
-    gameServer.addNode(f);
-    gameServer.currentFood++;
-    
-    // Move engine
-    f.angle = angle;
-    var dist = (Math.random() * 10) + 22; // Random distance
-    f.setMoveEngineData(dist,15);
-	
-    gameServer.setAsMovingNode(f);
+    if (this.color.r !== 205) {
+        var f = new Food(gameServer.getNextNodeId(), null, pos, gameServer.config.foodMass);
+        f.setColor(gameServer.getRandomColor());
+        gameServer.addNode(f);
+        gameServer.currentFood++;
+
+        // Move engine
+        f.angle = angle;
+        var dist = (Math.random() * 10) + 22; // Random distance
+        f.setMoveEngineData(dist, 15);
+
+        gameServer.setAsMovingNode(f);
     }
 };
 
@@ -350,17 +369,17 @@ PowerUp.prototype.onAdd = function(gameServer) {
 MotherCell.prototype.onRemove = function(gameServer) {
     var index = gameServer.gameMode.nodesMother.indexOf(this);
     if (index != -1) {
-    	gameServer.gameMode.nodesMother.splice(index,1);
+        gameServer.gameMode.nodesMother.splice(index, 1);
     }
 };
 PowerUp.prototype.onRemove = function(gameServer) {
     var index = gameServer.gameMode.nodesPower.indexOf(this);
     if (index != -1) {
-    	gameServer.gameMode.nodesPower.splice(index,1);
+        gameServer.gameMode.nodesPower.splice(index, 1);
     }
 };
 
-MotherCell.prototype.visibleCheck = function(box,centerPos) {
+MotherCell.prototype.visibleCheck = function(box, centerPos) {
     // Checks if this cell is visible to the player
     var cellSize = this.getSize();
     var lenX = cellSize + box.width >> 0; // Width of cell + width of the box (Int)
@@ -369,7 +388,7 @@ MotherCell.prototype.visibleCheck = function(box,centerPos) {
     return (this.abs(this.position.x - centerPos.x) < lenX) && (this.abs(this.position.y - centerPos.y) < lenY);
 };
 
-PowerUp.prototype.visibleCheck = function(box,centerPos) {
+PowerUp.prototype.visibleCheck = function(box, centerPos) {
     // Checks if this cell is visible to the player
     var cellSize = this.getSize();
     var lenX = cellSize + box.width >> 0; // Width of cell + width of the box (Int)
@@ -378,9 +397,9 @@ PowerUp.prototype.visibleCheck = function(box,centerPos) {
     return (this.abs(this.position.x - centerPos.x) < lenX) && (this.abs(this.position.y - centerPos.y) < lenY);
 };
 
-Experimental.prototype.pressQ = function(gameServer,player) {
+Experimental.prototype.pressQ = function(gameServer, player) {
     // Called when the Q key is pressed
     //var config = ini.parse(fs.readFileSync('./gameserver.ini', 'utf-8'));
     gameServer.ejectSpike(player);
-    
+
 };
